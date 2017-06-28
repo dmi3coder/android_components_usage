@@ -8,6 +8,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.content_main.*
+import io.github.dmi3coder.roommy.data.AppDatabase
+import android.arch.persistence.room.Room
+import io.github.dmi3coder.roommy.data.GravityItem
 
 
 class MainActivity : LifecycleActivity() {
@@ -16,6 +19,19 @@ class MainActivity : LifecycleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val db = Room.databaseBuilder(applicationContext,
+                AppDatabase::class.java, "gravity").build()
+
+        Thread{
+            val item = GravityItem();
+            item.uid = (Math.random()*10000).toInt();
+            item.x = 10.0;
+            item.y = 20.0;
+            db.gravityItemDao().insertAll(item);
+
+            Log.d(this.javaClass.simpleName,db.gravityItemDao().all[0].toString());
+        }.start()
+
 
         useLifecycle()
         sample_text.text = stringFromJNI()
@@ -23,7 +39,7 @@ class MainActivity : LifecycleActivity() {
 
     private fun useLifecycle(){
         val locationData = SensorListener(context = this, lifecycle = lifecycle){
-            Log.d(this.javaClass.simpleName, "${it?.values?.get(0)} \n ${it?.values?.get(1)}")
+//            Log.d(this.javaClass.simpleName, "${it?.values?.get(0)} \n ${it?.values?.get(1)}")
             sample_text.setText("${it?.values?.get(0)} \n ${it?.values?.get(1)}")
         }
         locationData.enable();
